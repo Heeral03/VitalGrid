@@ -27,6 +27,54 @@ VitalGrid addresses this as a distributed systems problem: hierarchical resource
 
 ---
 
+## Concurrency & Race Condition Benchmark Results
+
+VitalGrid features a comprehensive Pytest test suite validating thread isolation, mutual exclusion under high lock contention, and automated TTL lease expiration.
+
+```
+======================== test session starts =========================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
+collected 16 items                                                   
+
+tests/test_concurrency.py::test_simultaneous_same_node_lock_contention PASSED [  6%]
+tests/test_concurrency.py::test_simultaneous_overlapping_parent_child_contention PASSED [ 12%]
+tests/test_concurrency.py::test_high_concurrency_lock_unlock_stress PASSED [ 18%]
+tests/test_heartbeat.py::test_lock_sets_ttl_expires_at PASSED  [ 25%]
+tests/test_heartbeat.py::test_heartbeat_renewal_extends_lease PASSED [ 31%]
+tests/test_heartbeat.py::test_heartbeat_unauthorized_agent_rejected PASSED [ 37%]
+tests/test_heartbeat.py::test_heartbeat_unlocked_node_rejected PASSED [ 43%]
+tests/test_heartbeat.py::test_automatic_lease_expiration PASSED [ 50%]
+tests/test_tree_engine.py::test_initial_tree_structure PASSED  [ 56%]
+tests/test_tree_engine.py::test_lock_bed_success PASSED        [ 62%]
+tests/test_tree_engine.py::test_lock_duplicate_failure PASSED  [ 68%]
+tests/test_tree_engine.py::test_lock_child_when_ancestor_locked PASSED [ 75%]
+tests/test_tree_engine.py::test_lock_ancestor_when_child_locked PASSED [ 81%]
+tests/test_tree_engine.py::test_unlock_success PASSED          [ 87%]
+tests/test_tree_engine.py::test_unlock_wrong_agent_failure PASSED [ 93%]
+tests/test_tree_engine.py::test_upgrade_lock_success PASSED    [100%]
+
+========================= 16 passed in 0.47s =========================
+```
+
+### Detailed Concurrency Test Suite Highlights
+
+1. **Simultaneous Same-Node Contention (`test_simultaneous_same_node_lock_contention`)**:
+   - Spawns 10 concurrent threads synchronized via `threading.Barrier(10)` to request a lock on `bed-101A` at the exact same microsecond.
+   - Verifies **100% mutual exclusion**: exactly 1 thread succeeds (`LOCK_SUCCESS`), while 9 threads are cleanly rejected (`LOCK_FAILED_ALREADY_LOCKED`).
+
+2. **Overlapping Parent-Child Contention (`test_simultaneous_overlapping_parent_child_contention`)**:
+   - Simulates Thread A locking `bed-101A` while Thread B locks its parent `Room 101` simultaneously.
+   - Verifies spatial invariant bounds — exactly 1 operation succeeds, preserving descendant counter integrity (`locked_descendant_count`).
+
+3. **High-Concurrency Stress Test (`test_high_concurrency_lock_unlock_stress`)**:
+   - Executes 50 rapid randomized lock, unlock, and upgrade transactions across a 10-thread worker pool (`ThreadPoolExecutor`).
+   - Verifies zero deadlocks and total memory consistency.
+
+4. **Automated Lease Recovery (`test_heartbeat.py`)**:
+   - Confirms 30s TTL lease extensions on valid heartbeats and automatic release of stale locks by the 1s background worker.
+
+---
+
 ## Core System Architecture
 
 ```
