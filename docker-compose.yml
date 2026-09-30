@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  vitalgrid:
+    build: .
+    container_name: vitalgrid_app
+    ports:
+      - "8001:8001"
+    restart: always

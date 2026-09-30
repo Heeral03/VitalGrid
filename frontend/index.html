@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitalGrid — Hospital Spatial Resource Arbiter</title>
+    <meta name="description" content="High-performance hospital bed occupancy arbiter eliminating stale bed state through hierarchical tree locking and TTL lease heartbeats.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="light-theme">
+
+    <!-- ─── Header Navigation ──────────────────────────────────── -->
+    <header id="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="logo-box">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#vital-grad)"/>
+                        <path d="M7 16h5l2.5-6 4 12 3-8h5.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="vital-grad" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#10b981"/>
+                                <stop offset="1" stop-color="#059669"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">VitalGrid</span>
+                    <span class="brand-sub">Hospital Resource Arbiter</span>
+                </div>
+            </div>
+
+            <!-- View Navigation Switcher -->
+            <nav class="view-nav">
+                <button class="nav-btn active" id="nav-landing">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Overview
+                </button>
+                <button class="nav-btn" id="nav-dashboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Live Hospital Simulator
+                </button>
+            </nav>
+
+            <div class="header-actions">
+                <div class="status-badge" id="connection-chip">
+                    <span class="pulse-dot"></span>
+                    <span id="ws-status-text">WebSocket Active</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── SECTION 1: Overview Landing Page (Minimalist & Clean) ── -->
+    <section id="landing-view" class="view-section active">
+
+        <!-- Hero Section -->
+        <div class="hero-clean">
+            <div class="badge-pill">
+                <span class="pill-dot"></span>
+                Hospital Spatial Resource Synchronization
+            </div>
+
+            <h1 class="hero-title-clean">The gap isn't "not enough beds", it's "beds nobody can see are free."</h1>
+            <p class="hero-subtitle-clean">
+                VitalGrid eliminates stale hospital bed occupancy using hierarchical tree locking (<strong>Hospital &rarr; Ward &rarr; Dept &rarr; Room &rarr; Bed</strong>) and 30-second TTL lease heartbeats.
+            </p>
+
+            <!-- 4 Key Metric Cards -->
+            <div class="metric-cards-grid">
+                <div class="metric-card">
+                    <span class="metric-value">94.5%</span>
+                    <span class="metric-label">UK Bed Occupancy</span>
+                    <span class="metric-sub">Above 85% safe limit</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">13,000</span>
+                    <span class="metric-label">Daily Delayed Discharges</span>
+                    <span class="metric-sub">~1 in 10 NHS beds</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">&pound;562</span>
+                    <span class="metric-label">Cost per Bed-Day</span>
+                    <span class="metric-sub">6.75M bed-days lost/yr</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">570,957</span>
+                    <span class="metric-label">Corridor Care Incidents</span>
+                    <span class="metric-sub">Up from 123 in 2011/12</span>
+                </div>
+            </div>
+
+            <div class="hero-actions-clean">
+                <button class="btn btn-primary btn-lg" id="btn-launch-dashboard">
+                    Launch Live Hospital Simulator
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3 Feature Cards (Problem, Mechanism, Recovery) -->
+        <div class="feature-cards-grid">
+
+            <div class="f-card">
+                <div class="f-icon-box danger">01</div>
+                <h3>Stale Occupancy Failure</h3>
+                <p>Beds remain locked in system records long after physical patient departure because manual discharge records are delayed or forgotten.</p>
+            </div>
+
+            <div class="f-card">
+                <div class="f-icon-box primary">02</div>
+                <h3>O(h) Hierarchy & Heartbeats</h3>
+                <p>Locks are bound to spatial tree depth ($O(h)$). Active staff apps or IoT monitors send lightweight 10s telemetry heartbeats to renew 30s leases.</p>
+            </div>
+
+            <div class="f-card">
+                <div class="f-icon-box success">03</div>
+                <h3>Auto-Release & Zero Drift</h3>
+                <p>If heartbeats stop, the system lock naturally expires in 30 seconds, automatically surfacing available bed capacity across the network.</p>
+            </div>
+
+        </div>
+
+        <!-- Sources Citation Footer -->
+        <div class="data-sources-bar">
+            <span class="ds-label">Data Sources:</span> NHS England & The King's Fund, FY2025-26 Adult Acute Bed Occupancy & Discharge Data.
+        </div>
+
+    </section>
+
+    <!-- ─── SECTION 2: Interactive Live Hospital Simulator ──────── -->
+    <section id="dashboard-view" class="view-section">
+        <div class="dashboard-grid">
+
+            <!-- Left Column: Spatial Topology Visualizer & 2D Floor Canvas -->
+            <div class="card topology-card">
+                <div class="card-header">
+                    <div class="header-title-group">
+                        <h2>Hospital Spatial Topology</h2>
+                        <span class="subtitle">Interactive spatial tree and 2D hospital ward layout</span>
+                    </div>
+
+                    <!-- View Mode Switcher -->
+                    <div class="view-mode-toggle">
+                        <button class="mode-toggle-btn active" id="btn-mode-tree">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v8M12 10l-4 4M12 10l4 4M4 18h16"/></svg>
+                            Tree View
+                        </button>
+                        <button class="mode-toggle-btn" id="btn-mode-canvas">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                            2D Ward Floor Plan
+                        </button>
+                        <button class="mode-toggle-btn" id="btn-mode-split">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                            Split View
+                        </button>
+                    </div>
+
+                    <button class="btn btn-outline btn-sm" id="btn-refresh">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0118.8-4.3L21.5 8M22 12.5a10 10 0 01-18.8 4.3L2.5 16"/></svg>
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Legend Bar -->
+                <div class="legend-bar">
+                    <div class="legend-chip free">
+                        <span class="chip-dot"></span> Available Bed / Room
+                    </div>
+                    <div class="legend-chip locked">
+                        <span class="chip-dot"></span> Occupied (30s Active Lease)
+                    </div>
+                    <div class="legend-chip descendant-locked">
+                        <span class="chip-dot"></span> Ward Has Active Patients
+                    </div>
+                </div>
+
+                <!-- Combined Viewport Container -->
+                <div class="spatial-viewport-container" id="spatial-viewport">
+
+                    <!-- 1. Tree Viewport -->
+                    <div class="tree-viewport active" id="tree-container">
+                        <div class="tree-loading">Loading hospital hierarchy...</div>
+                    </div>
+
+                    <!-- 2. 2D Ward Floor Plan Canvas -->
+                    <div class="canvas-viewport" id="canvas-container">
+                        <canvas id="warehouse-canvas" width="840" height="540"></canvas>
+
+                        <!-- Canvas Floating Tooltip -->
+                        <div class="canvas-tooltip hidden" id="canvas-tooltip">
+                            <div class="tt-header" id="tt-title">Bed 101A</div>
+                            <div class="tt-body" id="tt-body">Type: BED | Status: Available</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right Column: Command Center & Audit Ledger -->
+            <div class="dashboard-sidebar">
+
+                <!-- Command Center -->
+                <div class="card command-card">
+                    <div class="card-header">
+                        <h2>Command Center</h2>
+                        <span class="subtitle">Clinical allocation & heartbeat pulse</span>
+                    </div>
+                    <div class="command-body">
+                        <div class="form-group">
+                            <label for="select-agent">Staff / Patient Agent</label>
+                            <select id="select-agent">
+                                <option value="dr-smith">dr-smith (Senior Attending)</option>
+                                <option value="nurse-jones">nurse-jones (Charge Nurse)</option>
+                                <option value="patient-ref-4910">patient-ref-4910 (Admitted Patient)</option>
+                                <option value="telemetry-pod-12">telemetry-pod-12 (IoT Monitor)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="select-node">Target Hospital Node</label>
+                            <select id="select-node">
+                                <option value="">Loading nodes...</option>
+                            </select>
+                        </div>
+
+                        <div class="command-btn-row">
+                            <button class="btn btn-lock" id="btn-lock">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                Lock
+                            </button>
+                            <button class="btn btn-unlock" id="btn-unlock">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></svg>
+                                Unlock
+                            </button>
+                            <button class="btn btn-upgrade" id="btn-upgrade">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                                Upgrade
+                            </button>
+                        </div>
+
+                        <!-- Heartbeat & Unlogged Discharge Simulator -->
+                        <div class="simulator-panel">
+                            <div class="sim-header">
+                                <span class="sim-title">Heartbeat & Discharge Drop Simulator</span>
+                            </div>
+                            <div class="sim-actions">
+                                <button class="btn btn-hb" id="btn-send-hb">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                                    Send Telemetry Pulse
+                                </button>
+                                <button class="btn btn-crash" id="btn-sim-crash">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    Simulate Unlogged Discharge
+                                </button>
+                            </div>
+                            <div class="sim-toggle-row">
+                                <label class="toggle-lbl">
+                                    <input type="checkbox" id="chk-auto-hb" checked>
+                                    Auto-Pulse Telemetry (every 10s)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Toast Notification -->
+                        <div class="toast-box hidden" id="response-toast">
+                            <div class="toast-icon" id="toast-icon"></div>
+                            <div class="toast-message" id="toast-msg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Ledger Trail -->
+                <div class="card audit-card">
+                    <div class="card-header">
+                        <div class="header-title-group">
+                            <h2>Audit Ledger</h2>
+                            <span class="subtitle">Append-only compliance log</span>
+                        </div>
+                        <span class="count-pill" id="audit-count">0</span>
+                    </div>
+                    <div class="audit-viewport" id="audit-list">
+                        <div class="audit-empty">No transactions recorded yet.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
