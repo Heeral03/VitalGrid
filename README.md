@@ -14,8 +14,16 @@ That translates to **6.75 million bed-days lost annually**, at a cost the NHS it
 
 VitalGrid addresses this as a distributed systems problem: hierarchical resource locks (**Hospital &rarr; Ward &rarr; Department &rarr; Room &rarr; Bed**) with TTL-based leases and heartbeat renewal ensure that a resource's system-recorded state can never silently drift from its real-world state for longer than one lease cycle (30s), auto-releasing stale locks and surfacing the failure via a real-time audit stream.
 
-### Sources & Citation
-Data compiled from **NHS England** and **The King's Fund**, *FY2025-26 Adult Acute Bed Occupancy & Discharge Reports*.
+---
+
+## Data Sources & References
+
+- **Primary Government Portal**: [NHS England Acute Discharge Situation Report](https://www.england.nhs.uk/statistics/statistical-work-areas/discharge-delays/acute-discharge-situation-report/)
+- **13,000 Daily Delayed Discharges & £562/bed-day**: The King's Fund / NHS England discharge data via [LBC News (2025/26)](https://www.lbc.co.uk/news/health/nhs-hospitals-health-latest/)
+- **94.5% Occupancy, 6.75M Lost Bed-Days, 570k Corridor Care**: [Age UK Analysis of NHS Bed Occupancy Statistics (Oct 2025)](https://www.ageuk.org.uk/latest-press/age-uk-says-recent-governments-have-taken-their-eye-off-the-ball-on-delayed-discharges--up-nearly-70-in-five-years/)
+- **Independent Corroboration & 85% Safe Occupancy Limit**: [The Health Foundation, "Delayed discharges from hospital" (Dec 2025)](https://www.health.org.uk/reports-and-analysis/analysis/delayed-discharges-from-hospital-comparing-performance)
+
+> **Citation**: Sources: Primary NHS England Acute Discharge Situation Report; The King's Fund / NHS England discharge data (via LBC, 2025/26); Age UK analysis of NHS bed occupancy and delayed discharge statistics (Oct 2025); The Health Foundation, "Delayed discharges from hospital" (Dec 2025).
 
 ---
 
